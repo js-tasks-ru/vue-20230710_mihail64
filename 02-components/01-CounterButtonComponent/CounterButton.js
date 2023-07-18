@@ -4,6 +4,17 @@ export default defineComponent({
   name: 'CounterButton',
 
   // Компонент должен иметь входной параметр и порождать событие
+  props: { count: { type: Number, required: true, default: 0 } },
 
-  template: `<button type="button">1</button>`,
+  methods: {
+    increment() {
+      this.$emit('update:count', this.count + 1);
+    },
+  },
+
+  emits: ['update:count'],
+
+  template: `
+    <button type="button" @click="increment">{{ count }}</button>
+  `,
 });
