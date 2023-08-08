@@ -1,20 +1,32 @@
 <template>
-  <div class="dropdown dropdown_opened">
-    <button type="button" class="dropdown__toggle dropdown__toggle_icon">
-      <UiIcon icon="tv" class="dropdown__icon" />
-      <span>Title</span>
+  <div class="dropdown" :class="{ dropdown_opened: opened }">
+    <button
+      type="button"
+      class="dropdown__toggle"
+      :class="{ dropdown__toggle_icon: optionsWithIconsExists }"
+      @click="opened = !opened"
+    >
+      <UiIcon v-if="currentOptionIcon" :icon="currentOptionIcon" :class="{ dropdown__icon: optionsWithIconsExists }" />
+      <span> {{ currentOptionText }}</span>
     </button>
 
-    <div class="dropdown__menu" role="listbox">
-      <button class="dropdown__item dropdown__item_icon" role="option" type="button">
-        <UiIcon icon="tv" class="dropdown__icon" />
-        Option 1
-      </button>
-      <button class="dropdown__item dropdown__item_icon" role="option" type="button">
-        <UiIcon icon="tv" class="dropdown__icon" />
-        Option 2
+    <div v-show="opened" class="dropdown__menu" role="listbox">
+      <button
+        v-for="option in options"
+        class="dropdown__item"
+        :class="{ dropdown__item_icon: optionsWithIconsExists }"
+        role="option"
+        type="button"
+        @click="update(option.value)"
+      >
+        <UiIcon v-if="option.icon" :icon="option.icon" :class="{ dropdown__icon: optionsWithIconsExists }" />
+        {{ option.text }}
       </button>
     </div>
+
+    <select v-model="currentValue" style="display: none">
+      <option v-for="option in options" :value="option.value">{{ option.text }}</option>
+    </select>
   </div>
 </template>
 
@@ -23,7 +35,45 @@ import UiIcon from './UiIcon.vue';
 
 export default {
   name: 'UiDropdown',
-
+  emits: ['update:modelValue'],
+  props: {
+    options: { type: Array, required: true },
+    modelValue: { type: String, required: false },
+    title: { type: String, required: true },
+  },
+  data() {
+    return {
+      opened: false,
+    };
+  },
+  computed: {
+    currentOption() {
+      return this.options.find((option) => option.value === this.currentValue);
+    },
+    currentOptionText() {
+      return this.currentOption ? this.currentOption.text : this.title;
+    },
+    currentOptionIcon() {
+      return this.currentOption ? this.currentOption.icon : null;
+    },
+    optionsWithIconsExists() {
+      return this.options.filter((option) => option.icon).length > 0;
+    },
+    currentValue: {
+      get() {
+        return this.modelValue;
+      },
+      set(value) {
+        this.$emit('update:modelValue', value);
+      },
+    },
+  },
+  methods: {
+    update(value) {
+      this.currentValue = value;
+      this.opened = false;
+    },
+  },
   components: { UiIcon },
 };
 </script>
