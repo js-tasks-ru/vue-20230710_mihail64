@@ -26,7 +26,7 @@
           <a
             v-for="meetup in meetupsByDates[i.d]"
             :key="meetup.id"
-            href="{{`/meetups/${meetup.id}`}}"
+            :href="getMeetupUrl(meetup)"
             class="calendar-event"
             >{{ meetup.title }}</a
           >
@@ -112,6 +112,9 @@ export default {
     previousMonth() {
       this.selectedDate = this.selectedDate.subtract(1, 'month');
     },
+    getMeetupUrl(meetup) {
+      return `/meetups/${meetup.id}`;
+    }
   },
   props: {
     meetups: {
