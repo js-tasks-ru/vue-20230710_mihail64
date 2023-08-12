@@ -1,10 +1,13 @@
 <template>
-  <a class="tabs__tab tabs__tab_active" role="tab">Tab</a>
+  <router-link :to="$props.to" class="tabs__tab" role="tab" exactActiveClass="tabs__tab_active">
+    <slot></slot>
+  </router-link>
 </template>
 
 <script>
 export default {
   name: 'UiTabsLink',
+  props: { to: { type: String, required: true } },
 };
 </script>
 
