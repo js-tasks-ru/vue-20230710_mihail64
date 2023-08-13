@@ -1,15 +1,96 @@
 <template>
   <div class="image-uploader">
-    <label class="image-uploader__preview image-uploader__preview-loading" style="--bg-url: url('/link.jpeg')">
-      <span class="image-uploader__text">Загрузить изображение</span>
-      <input type="file" accept="image/*" class="image-uploader__input" />
+    <label
+      class="image-uploader__preview"
+      @click="handleClick"
+      :class="{ 'image-uploader__preview-loading': state === 'loading' }"
+      :style="[localPreview ? `--bg-url: url(${localPreview})` : '']"
+    >
+      <span class="image-uploader__text"> {{ stateText }}</span>
     </label>
+    <!--
+    Вынес input из label и не стал их связывать чтобы не было проблемы с передачей лишних кликов.
+    Возможно есть более правильный способ, у меня побороть проблему модификаторам так и не получилось.
+     -->
+    <input
+      ref="input"
+      type="file"
+      v-bind="$attrs"
+      accept="image/*"
+      class="image-uploader__input"
+      @change="handleSelect"
+    />
   </div>
 </template>
 
 <script>
 export default {
   name: 'UiImageUploader',
+  props: {
+    preview: {
+      type: String,
+      default: '',
+    },
+    uploader: {
+      type: Function,
+      default: null,
+    },
+  },
+  inheritAttrs: false,
+  data() {
+    return {
+      isLoading: false,
+      localPreview: this.preview,
+    };
+  },
+  computed: {
+    state() {
+      if (this.isLoading) return 'loading';
+      else if (this.localPreview) return 'loaded';
+      else return 'empty';
+    },
+    stateText() {
+      switch (this.state) {
+        case 'empty':
+          return 'Загрузить изображение';
+        case 'loading':
+          return 'Загрузка...';
+        default:
+          return 'Удалить изображение';
+      }
+    },
+  },
+  emits: ['select', 'upload', 'error', 'remove'],
+  methods: {
+    handleClick() {
+      if (this.state === 'loaded') {
+        this.remove();
+      } else {
+        this.$refs.input.click();
+      }
+    },
+    async handleSelect() {
+      this.$emit('select', this.$refs.input.files[0]);
+      this.localPreview = URL.createObjectURL(this.$refs.input.files[0]);
+      if (this.uploader) {
+        this.isLoading = true;
+        try {
+          const resp = await this.uploader(this.$refs.input.files[0]);
+          this.$emit('upload', resp);
+        } catch (e) {
+          this.remove();
+          this.$emit('error', e);
+        } finally {
+          this.isLoading = false;
+        }
+      }
+    },
+    remove() {
+      this.localPreview = '';
+      this.$refs.input.value = '';
+      this.$emit('remove');
+    },
+  },
 };
 </script>
 
