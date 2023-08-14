@@ -1,37 +1,28 @@
 <template>
   <fieldset class="agenda-item-form">
-    <button type="button" class="agenda-item-form__remove-button">
+    <button type="button" class="agenda-item-form__remove-button" @click="$emit('remove')">
       <UiIcon icon="trash" />
     </button>
 
     <UiFormGroup>
-      <UiDropdown title="Тип" :options="$options.agendaItemTypeOptions" name="type" />
+      <UiDropdown title="Тип" :options="$options.agendaItemTypeOptions" name="type" v-model="localItem.type" />
     </UiFormGroup>
 
     <div class="agenda-item-form__row">
       <div class="agenda-item-form__col">
         <UiFormGroup label="Начало">
-          <UiInput type="time" placeholder="00:00" name="startsAt" />
+          <UiInput type="time" placeholder="00:00" name="startsAt" v-model="startsAt" />
         </UiFormGroup>
       </div>
       <div class="agenda-item-form__col">
         <UiFormGroup label="Окончание">
-          <UiInput type="time" placeholder="00:00" name="endsAt" />
+          <UiInput type="time" placeholder="00:00" name="endsAt" v-model="localItem.endsAt" />
         </UiFormGroup>
       </div>
     </div>
 
-    <UiFormGroup label="Тема">
-      <UiInput name="title" />
-    </UiFormGroup>
-    <UiFormGroup label="Докладчик">
-      <UiInput name="speaker" />
-    </UiFormGroup>
-    <UiFormGroup label="Описание">
-      <UiInput multiline name="description" />
-    </UiFormGroup>
-    <UiFormGroup label="Язык">
-      <UiDropdown title="Язык" :options="$options.talkLanguageOptions" name="language" />
+    <UiFormGroup v-for="schema in agendaItemFormSchemas[localItem.type]" :key="schema.name" :label="schema.label">
+      <Component  :is="schema.component" v-bind="schema.props" v-model="localItem[schema.props.name]"/>
     </UiFormGroup>
   </fieldset>
 </template>
@@ -41,6 +32,7 @@ import UiIcon from './UiIcon.vue';
 import UiFormGroup from './UiFormGroup.vue';
 import UiInput from './UiInput.vue';
 import UiDropdown from './UiDropdown.vue';
+import { klona } from "klona";
 
 const agendaItemTypeIcons = {
   registration: 'key',
@@ -76,18 +68,127 @@ const talkLanguageOptions = [
   { value: 'EN', text: 'EN' },
 ];
 
+/**
+ * @typedef FormItemSchema
+ * @property {string} label
+ * @property {string|object} component
+ * @property {object} props
+ */
+/** @typedef {string} AgendaItemField */
+/** @typedef {string} AgendaItemType */
+/** @typedef {Object.<AgendaItemType, FormItemSchema>} FormSchema */
+
+/** @type FormSchema */
+const commonAgendaItemFormSchema = {
+  title: {
+    label: 'Нестандартный текст (необязательно)',
+    component: 'ui-input',
+    props: {
+      name: 'title',
+    },
+  },
+};
+
+/** @type {Object.<AgendaItemField, FormSchema>} */
+const agendaItemFormSchemas = {
+  registration: commonAgendaItemFormSchema,
+  opening: commonAgendaItemFormSchema,
+  talk: {
+    title: {
+      label: 'Тема',
+      component: 'ui-input',
+      props: {
+        name: 'title',
+      },
+    },
+    speaker: {
+      label: 'Докладчик',
+      component: 'ui-input',
+      props: {
+        name: 'speaker',
+      },
+    },
+    description: {
+      label: 'Описание',
+      component: 'ui-input',
+      props: {
+        multiline: true,
+        name: 'description',
+      },
+    },
+    language: {
+      label: 'Язык',
+      component: 'ui-dropdown',
+      props: {
+        options: talkLanguageOptions,
+        title: 'Язык',
+        name: 'language',
+      },
+    },
+  },
+  break: commonAgendaItemFormSchema,
+  coffee: commonAgendaItemFormSchema,
+  closing: commonAgendaItemFormSchema,
+  afterparty: commonAgendaItemFormSchema,
+  other: {
+    title: {
+      label: 'Заголовок',
+      component: 'ui-input',
+      props: {
+        name: 'title',
+      },
+    },
+    description: {
+      label: 'Описание',
+      component: 'ui-input',
+      props: {
+        multiline: true,
+        name: 'description',
+      },
+    },
+  },
+};
+
 export default {
   name: 'MeetupAgendaItemForm',
 
-  agendaItemTypeOptions,
-  talkLanguageOptions,
-
   components: { UiIcon, UiFormGroup, UiInput, UiDropdown },
+
+  agendaItemTypeOptions,
+  agendaItemFormSchemas,
 
   props: {
     agendaItem: {
       type: Object,
       required: true,
+    },
+  },
+  data() {
+    return {
+      agendaItemTypeOptions,
+      agendaItemFormSchemas,
+      localItem: klona(this.agendaItem),
+      startsAt: this.agendaItem.startsAt,
+    };
+  },
+  emits: ['update:agendaItem','remove'],
+  watch: {
+    localItem: {
+      handler(value) {
+        this.$emit('update:agendaItem', klona(value));
+      },
+      deep: true
+    },
+    startsAt(newValue,oldValue) {
+      this.localItem.startsAt = newValue;
+      const diff = Number(newValue.split(':')[0]) - Number(oldValue.split(':')[0]);
+      const oldEndHours = Number(this.localItem.endsAt.split(':')[0]);
+      const newEndHours = oldEndHours + diff
+      let newEndHoursString = `${newEndHours > 24 ? newEndHours-24 : newEndHours }`
+      if (newEndHoursString.length === 1) {
+        newEndHoursString=`0${newEndHoursString}`
+      }
+      this.localItem.endsAt = `${newEndHoursString}:${this.localItem.endsAt.split(':')[1]}`
     },
   },
 };
