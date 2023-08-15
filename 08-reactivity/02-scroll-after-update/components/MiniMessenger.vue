@@ -4,6 +4,7 @@
       <li v-for="message in messages" :key="message.id" class="message">
         {{ message.text }}
       </li>
+      <li ref="lastMessage"></li>
     </ul>
     <form @submit.prevent="handleSendSubmit">
       <div class="input-group">
@@ -14,6 +15,8 @@
 </template>
 
 <script>
+import { nextTick } from 'vue';
+
 let lastId = 0;
 
 export default {
@@ -32,8 +35,10 @@ export default {
   },
 
   methods: {
-    handleSendSubmit() {
+    async handleSendSubmit() {
       this.send();
+      await nextTick();
+      this.$refs.lastMessage.scrollIntoView();
     },
 
     send() {
