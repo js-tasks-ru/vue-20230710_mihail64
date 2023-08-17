@@ -1,4 +1,4 @@
-import { computed } from 'vue';
+import { computed, watchEffect, ref, unref } from 'vue';
 
 /**
  * @template T
@@ -8,4 +8,19 @@ import { computed } from 'vue';
 export function reactify(func) {
   // ...
   // return () => computed(() => {});
+  return (...args) =>
+    computed(() => {
+      let result = ref();
+
+      watchEffect(() => {
+        const rawArgs = args.map((v) => toValue(v));
+        result.value = func(...rawArgs);
+      });
+
+      return result.value;
+    });
+}
+
+export function toValue(r) {
+  return typeof r === 'function' ? r() : unref(r);
 }
