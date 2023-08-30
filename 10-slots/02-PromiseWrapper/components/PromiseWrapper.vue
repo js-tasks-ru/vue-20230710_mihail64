@@ -1,13 +1,7 @@
 <template>
-  <template v-if="status === 'pending'">
-    <slot name="pending" />
-  </template>
-  <template v-if="status === 'rejected'">
-    <slot name="rejected" :error="error" />
-  </template>
-  <template v-if="status === 'fulfilled'">
-    <slot name="fulfilled" :result="result" />
-  </template>
+    <slot v-if="status === 'pending'" name="pending" />
+    <slot v-else-if="status === 'rejected'" name="rejected" :error="error" />
+    <slot v-else name="fulfilled" :result="result" />
 </template>
 
 <script>

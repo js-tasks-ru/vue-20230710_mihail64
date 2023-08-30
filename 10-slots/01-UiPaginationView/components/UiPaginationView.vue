@@ -1,9 +1,7 @@
 <template>
   <div class="pagination-container">
     <!-- Контент страницы -->
-    <template v-for="item in paginatedItems" :key="item.id">
-      <slot :item="item"></slot>
-    </template>
+    <slot v-for="item in paginatedItems" :key="item.id" :item="item"></slot>
   </div>
 </template>
 
