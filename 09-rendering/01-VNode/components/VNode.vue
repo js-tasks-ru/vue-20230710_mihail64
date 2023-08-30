@@ -12,7 +12,7 @@ export default {
     },
   },
   render() {
-    return Array.isArray(this.vnode) ? [...this.vnode] : this.vnode;
+    return this.vnode;
   },
 };
 </script>
