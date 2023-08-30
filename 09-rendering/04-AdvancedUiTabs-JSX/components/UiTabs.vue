@@ -29,7 +29,7 @@ export default {
         <div class="tabs__nav" role="tablist">
           { coreNodes.map(( node ) => {
             return <a
-              className={`tabs__tab ${this.activeTab === node.props.name ? 'tabs__tab_active':''}`}
+              class={`tabs__tab ${this.activeTab === node.props.name ? 'tabs__tab_active':''}`}
               role="tab"
               onClick={ () => this.setActive(node.props.name) }> { node.props.title }</a>
           })}
