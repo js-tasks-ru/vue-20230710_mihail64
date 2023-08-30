@@ -1,5 +1,5 @@
 <script>
-import { compile } from 'vue/dist/vue.cjs';
+import { compile } from 'vue';
 
 export default {
   name: 'TemplateRenderer',
