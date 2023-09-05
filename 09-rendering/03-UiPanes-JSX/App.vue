@@ -23,6 +23,20 @@
           <UiIcon icon="key" />
         </div>
       </template>
+      <!--  Default слот для теста, почему его тут не было сразу? Именовые слоты выше ведь не будут слотом по умолчанию -->
+        <div>
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cum harum id labore repellat sequi. Aliquam at
+          consequuntur dolorem doloremque dolorum eum excepturi, incidunt laudantium, molestias quidem reprehenderit
+          sunt suscipit ullam.
+        </div>
+        <UiButton variant="primary">Pane 2 - Button</UiButton>
+        <UiInput placeholder="Pane 3 - Input" />
+        <div>
+          <UiIcon icon="search" />
+          <UiIcon icon="tv" />
+          <UiIcon icon="coffee" />
+          <UiIcon icon="key" />
+        </div>
     </UiPanes>
   </div>
 </template>
