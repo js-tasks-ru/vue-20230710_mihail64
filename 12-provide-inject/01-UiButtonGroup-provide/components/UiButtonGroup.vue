@@ -1,14 +1,12 @@
 <template>
   <div class="button-group" role="group">
-    <!-- Эти кнопки должны передаваться через слот -->
-    <button class="button-group__button button-group__button_active" type="button" aria-selected="true">Button1</button>
-    <button class="button-group__button" type="button" aria-selected="false">Button2</button>
-    <button class="button-group__button" type="button" aria-selected="false">Button3</button>
-    <!-- Эти кнопки должны передаваться через слот -->
+    <slot></slot>
   </div>
 </template>
 
 <script>
+import { toRef } from "vue";
+
 export default {
   name: 'UiButtonGroup',
 
@@ -18,7 +16,18 @@ export default {
     },
   },
 
+  methods: {
+    setModelValue(value) {
+      this.$emit('update:modelValue', value);
+    }
+  },
   emits: ['update:modelValue'],
+  provide() {
+    return {
+      UiButtonGroupModel: toRef(this.$props, 'modelValue'),
+      setUiButtonGroupModel: this.setModelValue,
+    };
+  },
 };
 </script>
 

@@ -1,5 +1,7 @@
 <template>
-  <button class="button-group__button button-group__button_active" type="button" aria-selected="false">Button</button>
+  <button class="button-group__button" :class="{'button-group__button_active' : isActive }" type="button" aria-selected="false" @click="onClick">
+    <slot/>
+  </button>
 </template>
 
 <script>
@@ -9,6 +11,17 @@ export default {
   props: {
     value: {
       required: true,
+    },
+  },
+  inject: ['UiButtonGroupModel', 'setUiButtonGroupModel'],
+  computed: {
+    isActive() {
+      return this.value === this.UiButtonGroupModel.value;
+    },
+  },
+  methods: {
+    onClick() {
+      this.setUiButtonGroupModel(this.value);
     },
   },
 };
