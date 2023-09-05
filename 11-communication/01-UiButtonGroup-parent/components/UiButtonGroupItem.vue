@@ -1,16 +1,38 @@
 <template>
-  <button class="button-group__button button-group__button_active" type="button" aria-selected="false">Button</button>
+  <button
+    class="button-group__button"
+    :class="{ 'button-group__button_active': isActive }"
+    type="button"
+    aria-selected="false"
+    @click="setValue"
+  >
+    <slot></slot>
+  </button>
 </template>
 
 <script>
 export default {
   name: 'UiButtonGroupItem',
-
   props: {
     value: {
       required: true,
     },
   },
+  methods: {
+    setValue() {
+      this.$parent.setModelValue(this.value);
+    }
+  },
+  computed: {
+    isActive() {
+      return this.value === this.$parent.modelValue;
+    },
+  },
+  mounted() {
+    if (this.$parent.$options.name !== 'UiButtonGroup') {
+      console.warn('UiButtonGroupItem should only be used inside UiButtonGroup');
+    }
+  }
 };
 </script>
 

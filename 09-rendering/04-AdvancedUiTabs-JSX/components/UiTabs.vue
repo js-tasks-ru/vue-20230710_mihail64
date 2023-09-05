@@ -1,7 +1,7 @@
 <script lang="jsx">
 // Предлагается решать задачу с использованием JSX, но вы можете использовать и чистые рендер-функции
 
-// import UiTab from './UiTab.vue';
+import UiTab from './UiTab.vue';
 
 export default {
   name: 'UiTabs',
@@ -17,17 +17,27 @@ export default {
       this.$emit('update:active', tabId);
     },
   },
+  computed: {
+    activeTab() { return this.active}
+  },
 
   render() {
+    const content = this.$slots.default();
+    const coreNodes = content.filter((node) => node.type === UiTab); //В принципе можно и не фильтровать, в входных данных и тестах корневой компонент всегда UiTab
     return (
       <div class="tabs">
         <div class="tabs__nav" role="tablist">
-          <a class="tabs__tab" role="tab">Tab</a>
-          <a class="tabs__tab tabs__tab_active" role="tab">Active Tab</a>
-          <a class="tabs__tab" role="tab">Tab</a>
+          { coreNodes.map(( node ) => {
+            return <a
+              class={`tabs__tab ${this.activeTab === node.props.name ? 'tabs__tab_active':''}`}
+              role="tab"
+              onClick={ () => this.setActive(node.props.name) }> { node.props.title }</a>
+          })}
         </div>
         <div class="tabs__content">
-          ACTIVE TAB CONTENT
+          { coreNodes.filter((node) => node.props.name === this.activeTab).map((node) => {
+            return node.children.default()
+          }) }
         </div>
       </div>
     );
