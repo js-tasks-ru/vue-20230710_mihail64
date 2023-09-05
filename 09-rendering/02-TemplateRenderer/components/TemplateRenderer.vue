@@ -21,12 +21,18 @@ export default {
     dynamicComponent() {
       return defineComponent({
         components: this.components,
-        render: () => compile(this.template)({ bindings: this.bindings })
+        props: {
+          bindings: {
+            type: Object,
+            default: () => ({}),
+          },
+        },
+        render: compile(this.template)
       });
     },
   },
   render() {
-    return h(this.dynamicComponent);
+    return h(this.dynamicComponent, {bindings: this.bindings});
   },
 };
 </script>
